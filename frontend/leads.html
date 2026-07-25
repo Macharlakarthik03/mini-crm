@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leads — Mini CRM</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="logo-mark"><i class="fa-solid fa-chart-line" style="color:#fff;font-size:14px;"></i></span>
+      Mini CRM
+    </div>
+
+    <ul class="nav-list">
+      <li><a href="dashboard.html"><i class="fa-solid fa-grip"></i> Dashboard</a></li>
+      <li><a href="leads.html" class="active"><i class="fa-solid fa-users"></i> Leads</a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="admin-chip">
+        <div class="avatar" id="adminAvatar">A</div>
+        <div>
+          <div class="name" id="adminName">Admin</div>
+          <div class="role">Administrator</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out</button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <button class="mobile-toggle" id="mobileToggle"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <h1>Leads</h1>
+          <div class="today" id="leadCountLabel">Manage all your client leads</div>
+        </div>
+      </div>
+      <button class="btn btn-add" id="openAddModal"><i class="fa-solid fa-plus"></i> Add Lead</button>
+    </div>
+
+    <div class="panel">
+      <div class="toolbar">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchInput" placeholder="Search by name or email...">
+        </div>
+
+        <div class="select-control">
+          <select id="statusFilter">
+            <option value="All">All Statuses</option>
+            <option value="New">New</option>
+            <option value="Contacted">Contacted</option>
+            <option value="Converted">Converted</option>
+          </select>
+        </div>
+
+        <div class="select-control">
+          <select id="sortSelect">
+            <option value="latest">Latest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
+
+        <button class="btn btn-ghost" id="refreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Lead</th>
+              <th>Phone</th>
+              <th>Source</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="leadsTableBody">
+            <tr class="loading-row"><td colspan="6"><span class="spinner" style="border-top-color:var(--primary); border-color:var(--border);"></span> Loading leads...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="result-count" id="resultCount"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ============== Add / Edit Lead Modal ============== -->
+<div class="modal-overlay" id="leadModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="leadModalTitle">Add New Lead</h3>
+      <button class="modal-close" data-close="leadModal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="leadForm">
+      <div class="modal-body">
+        <input type="hidden" id="leadId">
+        <div class="form-grid">
+          <div class="form-field full" id="fld-name">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" id="name" placeholder="e.g. Rahul Sharma">
+            <div class="err-msg">Please enter the lead's name (min 2 characters).</div>
+          </div>
+
+          <div class="form-field full" id="fld-email">
+            <label>Email Address <span class="req">*</span></label>
+            <input type="email" id="email" placeholder="e.g. rahul@example.com">
+            <div class="err-msg">Please enter a valid, unique email address.</div>
+          </div>
+
+          <div class="form-field" id="fld-phone">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="text" id="phone" placeholder="e.g. 9876543210">
+            <div class="err-msg">Please enter a valid phone number.</div>
+          </div>
+
+          <div class="form-field" id="fld-source">
+            <label>Source <span class="req">*</span></label>
+            <select id="source">
+              <option value="Website">Website</option>
+              <option value="Facebook">Facebook</option>
+              <option value="Instagram">Instagram</option>
+              <option value="LinkedIn">LinkedIn</option>
+              <option value="Referral">Referral</option>
+            </select>
+            <div class="err-msg">Please select a source.</div>
+          </div>
+
+          <div class="form-field full" id="fld-status">
+            <label>Status</label>
+            <select id="status">
+              <option value="New">New</option>
+              <option value="Contacted">Contacted</option>
+              <option value="Converted">Converted</option>
+            </select>
+          </div>
+
+          <div class="form-field full" id="fld-notes">
+            <label>Notes</label>
+            <textarea id="notes" placeholder="Add any relevant notes about this lead..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn-cancel" data-close="leadModal">Cancel</button>
+        <button type="submit" class="btn-submit" id="leadSubmitBtn">
+          <span id="leadSubmitText"><i class="fa-solid fa-check"></i> Save Lead</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============== Notes Modal ============== -->
+<div class="modal-overlay" id="notesModal">
+  <div class="modal-box" style="max-width:460px;">
+    <div class="modal-head">
+      <h3>Lead Notes</h3>
+      <button class="modal-close" data-close="notesModal"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <form id="notesForm">
+      <div class="modal-body">
+        <input type="hidden" id="notesLeadId">
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;" id="notesLeadName"></p>
+        <div class="form-field full">
+          <label>Notes</label>
+          <textarea id="notesTextarea" placeholder="Add notes about this lead..." style="min-height:140px;"></textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn-cancel" data-close="notesModal">Cancel</button>
+        <button type="submit" class="btn-submit"><i class="fa-solid fa-check"></i> Save Notes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============== Delete Confirm Modal ============== -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="modal-body" style="text-align:center; padding-top:28px;">
+      <div class="confirm-icon"><i class="fa-solid fa-trash"></i></div>
+      <h3 style="font-family:var(--font-display); margin-bottom:8px;">Delete this lead?</h3>
+      <p class="confirm-text">Are you sure you want to delete <strong id="deleteLeadName"></strong>? This action cannot be undone.</p>
+    </div>
+    <div class="modal-foot" style="justify-content:center;">
+      <button type="button" class="btn-cancel" data-close="deleteModal">Cancel</button>
+      <button type="button" class="btn-submit" style="background:var(--accent-red);" id="confirmDeleteBtn">
+        <i class="fa-solid fa-trash"></i> Delete Lead
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/leads.js"></script>
+</body>
+</html>

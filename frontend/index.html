@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini CRM — Admin Login</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<div class="login-page">
+
+  <!-- Left visual panel -->
+  <div class="login-visual">
+    <div class="brand">
+      <span class="logo-mark"><i class="fa-solid fa-chart-line" style="color:#fff;font-size:15px;"></i></span>
+      Mini CRM
+    </div>
+
+    <div>
+      <h1 class="headline">Every lead, tracked. Every follow-up, on time.</h1>
+      <p class="subline">A focused workspace for your sales pipeline — capture leads, move them through New, Contacted, and Converted, and never lose a note again.</p>
+
+      <div class="login-stats">
+        <div class="stat-block">
+          <div class="num">01</div>
+          <div class="lbl">Capture</div>
+        </div>
+        <div class="stat-block">
+          <div class="num">02</div>
+          <div class="lbl">Engage</div>
+        </div>
+        <div class="stat-block">
+          <div class="num">03</div>
+          <div class="lbl">Convert</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footnote">Client Lead Management System &mdash; Internship Project</div>
+  </div>
+
+  <!-- Right login form -->
+  <div class="login-form-side">
+    <div class="login-card">
+      <h1>Welcome back</h1>
+      <p class="subtitle">Sign in to your admin dashboard to manage leads.</p>
+
+      <div class="form-error" id="loginError">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="loginErrorText">Invalid credentials.</span>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div class="field-group">
+          <label for="username">Username</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="username" name="username" placeholder="Enter your username" autocomplete="username" required>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+            <button type="button" class="toggle-pass" id="togglePass"><i class="fa-solid fa-eye"></i></button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="loginBtn">
+          <span id="loginBtnText">Sign In</span>
+        </button>
+      </form>
+
+      <div class="login-hint">
+        <i class="fa-solid fa-circle-info"></i>
+        Demo credentials — Username: <strong>admin</strong> &nbsp;|&nbsp; Password: <strong>admin123</strong>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>
