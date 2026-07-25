@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ---------- Serve Frontend (static files) ----------
-const frontendPath = path.join(__dirname, '..', 'frontend');
+const frontendPath = path.resolve(__dirname, '..', 'frontend');
 app.use(express.static(frontendPath));
 
 // ---------- API Routes ----------
