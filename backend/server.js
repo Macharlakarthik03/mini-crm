@@ -29,6 +29,17 @@ console.log('Mini CRM: process.cwd() =', process.cwd());
 function findFrontendDir() {
   const starts = [__dirname, process.cwd()];
 
+  // If a `public` folder exists inside backend, prefer it (we copy frontend there for deployments)
+  try {
+    const publicCandidate = path.join(__dirname, 'public');
+    console.log('Mini CRM: checking candidate path:', publicCandidate);
+    if (fs.existsSync(publicCandidate) && fs.statSync(publicCandidate).isDirectory()) {
+      return publicCandidate;
+    }
+  } catch (e) {
+    // ignore
+  }
+
   // Walk up from each start dir a few levels and check for a sibling "frontend"
   for (const start of starts) {
     let dir = path.resolve(start);
