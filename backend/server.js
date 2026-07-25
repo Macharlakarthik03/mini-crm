@@ -4,6 +4,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
 
 const authRoutes = require('./routes/authRoutes');
@@ -18,7 +19,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ---------- Serve Frontend (static files) ----------
-const frontendPath = path.resolve(__dirname, '..', 'frontend');
+// Resolve frontend folder robustly for different deploy layouts (local, Railway)
+const candidatePaths = [
+  path.resolve(__dirname, '..', 'frontend'),      // repo root /frontend (backend/..../frontend)
+  path.resolve(process.cwd(), 'frontend'),        // working dir frontend (if service root is project root)
+  path.resolve(__dirname, 'frontend'),            // frontend inside backend (edge case)
+  path.resolve(__dirname, '..', '..', 'frontend') // another possible sibling layout
+];
+
+let frontendPath = candidatePaths.find(p => {
+  try { return fs.existsSync(p) && fs.statSync(p).isDirectory(); } catch (e) { return false; }
+});
+
+if (!frontendPath) {
+  // Fallback to the standard sibling path; keep this even if missing so sendFile path is deterministic
+  frontendPath = path.resolve(__dirname, '..', 'frontend');
+  console.warn('Mini CRM: frontend folder not found at expected locations. Using fallback:', frontendPath);
+} else {
+  console.log('Mini CRM: serving frontend from', frontendPath);
+}
+
 app.use(express.static(frontendPath));
 
 // ---------- API Routes ----------
