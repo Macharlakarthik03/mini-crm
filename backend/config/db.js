@@ -23,7 +23,8 @@ const promisePool = pool.promise();
 pool.getConnection((err, connection) => {
   if (err) {
     console.error('❌ MySQL connection failed:', err.message);
-    console.error('   Please check your .env file and ensure MySQL is running.');
+    console.error('   Please check your backend/.env or Railway environment variables and ensure MySQL is reachable.');
+    process.exit(1);
   } else {
     console.log('✅ MySQL connected successfully.');
     connection.release();
