@@ -19,26 +19,77 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ---------- Serve Frontend (static files) ----------
-// Resolve frontend folder robustly for different deploy layouts (local, Railway)
-const candidatePaths = [
-  path.resolve(__dirname, '..', 'frontend'),      // repo root /frontend (backend/..../frontend)
-  path.resolve(process.cwd(), 'frontend'),        // working dir frontend (if service root is project root)
-  path.resolve(__dirname, 'frontend'),            // frontend inside backend (edge case)
-  path.resolve(__dirname, '..', '..', 'frontend') // another possible sibling layout
-];
+// Print runtime dirs so deploy logs show where the process is running from
+console.log('Mini CRM: __dirname =', __dirname);
+console.log('Mini CRM: process.cwd() =', process.cwd());
 
-let frontendPath = candidatePaths.find(p => {
-  try { return fs.existsSync(p) && fs.statSync(p).isDirectory(); } catch (e) { return false; }
-});
+// Search strategy: look for a directory named "frontend" by checking
+// parent directories of both __dirname and process.cwd(), then a small
+// bounded recursive search. Do NOT fall back to an absolute "/frontend".
+function findFrontendDir() {
+  const starts = [__dirname, process.cwd()];
 
-if (!frontendPath) {
-  // Fallback to the standard sibling path; keep this even if missing so sendFile path is deterministic
-  frontendPath = path.resolve(__dirname, '..', 'frontend');
-  console.warn('Mini CRM: frontend folder not found at expected locations. Using fallback:', frontendPath);
-} else {
-  console.log('Mini CRM: serving frontend from', frontendPath);
+  // Walk up from each start dir a few levels and check for a sibling "frontend"
+  for (const start of starts) {
+    let dir = path.resolve(start);
+    for (let i = 0; i < 6; i++) {
+      if (!dir) break;
+      const candidate = path.join(dir, 'frontend');
+      console.log('Mini CRM: checking candidate path:', candidate);
+      try {
+        if (fs.existsSync(candidate) && fs.statSync(candidate).isDirectory()) {
+          return candidate;
+        }
+      } catch (e) {
+        // ignore and continue
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+  }
+
+  // Bounded recursive search to catch frontends inside nearby folders (depth 2)
+  function findInside(start, depth) {
+    if (depth < 0) return null;
+    let entries;
+    try { entries = fs.readdirSync(start, { withFileTypes: true }); } catch (e) { return null; }
+    for (const e of entries) {
+      if (e.isDirectory() && e.name === 'frontend') {
+        const p = path.join(start, e.name);
+        console.log('Mini CRM: found frontend at (recursive):', p);
+        return p;
+      }
+    }
+    for (const e of entries) {
+      if (!e.isDirectory()) continue;
+      if (e.name === 'node_modules' || e.name === '.git') continue;
+      const sub = path.join(start, e.name);
+      const res = findInside(sub, depth - 1);
+      if (res) return res;
+    }
+    return null;
+  }
+
+  const rootsToSearch = [process.cwd(), path.resolve(__dirname, '..'), path.resolve(process.cwd(), '..')];
+  for (const r of rootsToSearch) {
+    console.log('Mini CRM: recursive search starting at:', r);
+    const res = findInside(r, 2);
+    if (res) return res;
+  }
+
+  return null;
 }
 
+const frontendPath = findFrontendDir();
+if (!frontendPath) {
+  console.error('Mini CRM: ERROR - frontend directory not found. Checked __dirname and process.cwd() parent paths and performed bounded recursive search.');
+  console.error('Mini CRM: Please ensure the `frontend` folder is present in the repository and that Railway Root Directory setting (backend) is correct.');
+  // Fail fast so deployment shows an explicit error instead of ENOENT later
+  process.exit(1);
+}
+
+console.log('Mini CRM: serving frontend from', frontendPath);
 app.use(express.static(frontendPath));
 
 // ---------- API Routes ----------
