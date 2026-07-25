@@ -1,7 +1,8 @@
 // ==========================================================
 // Auth Controller - Handles admin login
 // ==========================================================
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const AdminModel = require('../models/adminModel');
@@ -9,6 +10,7 @@ const AdminModel = require('../models/adminModel');
 exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
+    console.log('Auth login request:', { username: username || null });
 
     // Validation
     if (!username || !password) {
@@ -19,6 +21,7 @@ exports.login = async (req, res) => {
     }
 
     const admin = await AdminModel.findByUsername(username.trim());
+    console.log('Auth login fetched admin:', { found: Boolean(admin), username: admin ? admin.username : null });
 
     if (!admin) {
       return res.status(401).json({
@@ -54,6 +57,7 @@ exports.login = async (req, res) => {
     });
   } catch (err) {
     console.error('Login error:', err);
+    console.error(err.stack);
     return res.status(500).json({
       success: false,
       message: 'Server error during login.'

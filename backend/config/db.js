@@ -1,8 +1,17 @@
 // ==========================================================
 // Database Configuration - MySQL Connection Pool
 // ==========================================================
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const mysql = require('mysql2');
+
+console.log('MySQL config:', {
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT
+});
+console.log('JWT_SECRET present:', Boolean(process.env.JWT_SECRET));
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',

@@ -1,7 +1,8 @@
 // ==========================================================
 // Auth Middleware - Verifies JWT token on protected routes
 // ==========================================================
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const jwt = require('jsonwebtoken');
 
 function verifyToken(req, res, next) {

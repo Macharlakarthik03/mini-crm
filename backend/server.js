@@ -18,6 +18,23 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Handle JSON parse errors explicitly so malformed payloads are visible in logs.
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error('❌ JSON parse error on request:', {
+      path: req.path,
+      method: req.method,
+      body: req.body,
+      message: err.message
+    });
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid JSON payload in request body.'
+    });
+  }
+  next(err);
+});
+
 // ---------- Serve Frontend (static files) ----------
 // Print runtime dirs so deploy logs show where the process is running from
 console.log('Mini CRM: __dirname =', __dirname);
