@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ---------- Serve Frontend (static files) ----------
-const frontendPath = path.resolve(__dirname, '..', 'frontend');
+const frontendPath = path.resolve(__dirname, '..', '..', 'frontend');
 app.use(express.static(frontendPath));
 
 // ---------- API Routes ----------
@@ -47,3 +47,4 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 Mini CRM server running at http://localhost:${PORT}`);
 });
+
